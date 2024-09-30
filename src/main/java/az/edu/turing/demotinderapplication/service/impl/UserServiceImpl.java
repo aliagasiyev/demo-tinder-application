@@ -1,6 +1,8 @@
 package az.edu.turing.demotinderapplication.service.impl;
 
+import az.edu.turing.demotinderapplication.domain.entity.LikedEntity;
 import az.edu.turing.demotinderapplication.domain.entity.UserEntity;
+import az.edu.turing.demotinderapplication.domain.repository.LikeRepository;
 import az.edu.turing.demotinderapplication.domain.repository.UserRepository;
 import az.edu.turing.demotinderapplication.exception.ResourceNotFoundException;
 import az.edu.turing.demotinderapplication.mapper.UserMapper;
@@ -9,19 +11,26 @@ import az.edu.turing.demotinderapplication.model.dto.response.UserResponse;
 import az.edu.turing.demotinderapplication.service.UserService;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
-@NoArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private UserRepository userRepository;
-    private UserMapper userMapper;
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
+    private final LikeRepository likeRepository;
+
+    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, LikeRepository likeRepository) {
+        this.userRepository = userRepository;
+        this.userMapper = userMapper;
+        this.likeRepository = likeRepository;
+    }
+
 
     @Override
     public List<UserResponse> findAllUsers() {
@@ -53,17 +62,28 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<UserEntity> findByUsername(String username) {
-        return Optional.empty();
-    }
-
-    @Override
     public void likeUser(Long currentUserId, Long likedUserId) {
+        UserEntity currentUser = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("User with id " + currentUserId + " not found"));
 
+        UserEntity likedUser = userRepository.findById(likedUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("User with id " + likedUserId + " not found"));
+
+        LikedEntity like = new LikedEntity();
+        like.setUser(currentUser);
+        like.setLikedUser(likedUser);
+        like.setLikedAt(LocalDateTime.now());
+        likeRepository.save(like);
     }
 
     @Override
     public List<UserEntity> getLikedUsers(Long userId) {
-        return List.of();
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User with id " + userId + " not found"));
+
+        return likeRepository.findByUser(user).stream()
+                .map(LikedEntity::getLikedUser)
+                .collect(Collectors.toList());
+
     }
 }

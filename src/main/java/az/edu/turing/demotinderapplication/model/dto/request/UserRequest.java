@@ -6,9 +6,14 @@ import jakarta.validation.constraints.NotBlank;
 public record UserRequest(
 
         @NotBlank()
-        String name,
-
+        String username,
+        @NotBlank
+        String email,
+        @NotBlank
+        String fullName,
+        @NotBlank
+        String password,
         @NotBlank()
-        byte [] photoUrl
+        String photoUrl
 ) {
 }

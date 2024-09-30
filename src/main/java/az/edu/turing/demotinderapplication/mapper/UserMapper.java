@@ -5,20 +5,20 @@ import az.edu.turing.demotinderapplication.model.dto.request.UserRequest;
 import az.edu.turing.demotinderapplication.model.dto.response.UserResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
+import org.mapstruct.Mappings;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
-    UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
-
-
-
+    @Mappings({
+            @Mapping(target = "id",ignore = true),
+            @Mapping(source = "username", target = "username"),
+            @Mapping(source = "fullName", target = "fullName"),
+            @Mapping(target = "lastLoginAt", ignore = true),
+            @Mapping(target = "lastActiveAt",ignore = true),
+            @Mapping(target = "profilePhoto", ignore = true),
+            @Mapping(target = "liked", ignore = true),
+    })
     UserEntity toEntity(UserRequest userRequest);
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "name",ignore = true)
-    @Mapping(target ="photoUrl", ignore = true)
-
     UserResponse toResponse(UserEntity user);
-
 }

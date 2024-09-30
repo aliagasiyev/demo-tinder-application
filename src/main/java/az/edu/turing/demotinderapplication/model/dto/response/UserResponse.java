@@ -8,9 +8,9 @@ public record UserResponse(
         Long id,
 
         @NotBlank(message = "Name cannot be blank")
-        String name,
+        String username,
 
         @NotBlank(message = "Photo URL cannot be blank")
-        byte [] photoUrl
+        String photoUrl
 ) {
 }
